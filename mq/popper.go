@@ -194,7 +194,10 @@ func (pop *Popper) sendGroupMessage(data *SendMessage) error {
 func getBTCInfo() (string, error) {
 	var infoUrl = "https://www.aicoin.cn/api/coin-profile/index?coin_type=bitcoin&currency=cny"
 	var infoRsp CoinBase
-	err := gout.GET(infoUrl).BindJSON(&infoRsp).Do()
+	err := gout.GET(infoUrl).SetHeader(gout.H{
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+		"Referer":    "https://www.aicoin.cn/",
+		"Host":       "www.aicoin.cn"}).BindJSON(&infoRsp).Do()
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return "", err
@@ -216,7 +219,10 @@ func getBTCInfo() (string, error) {
 func getETHInfo() (string, error) {
 	var infoUrl = "https://www.aicoin.cn/api/coin-profile/index?coin_type=ethereum&currency=cny"
 	var infoRsp CoinBase
-	err := gout.GET(infoUrl).BindJSON(&infoRsp).Do()
+	err := gout.GET(infoUrl).SetHeader(gout.H{
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+		"Referer":    "https://www.aicoin.cn/",
+		"Host":       "www.aicoin.cn"}).BindJSON(&infoRsp).Do()
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return "", err
@@ -238,7 +244,10 @@ func getETHInfo() (string, error) {
 func getLTCInfo() (string, error) {
 	var infoUrl = "https://www.aicoin.cn/api/coin-profile/index?coin_type=bitcoin&currency=cny"
 	var infoRsp CoinBase
-	err := gout.GET(infoUrl).BindJSON(&infoRsp).Do()
+	err := gout.GET(infoUrl).SetHeader(gout.H{
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+		"Referer":    "https://www.aicoin.cn/",
+		"Host":       "www.aicoin.cn"}).BindJSON(&infoRsp).Do()
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return "", err
@@ -260,7 +269,10 @@ func getLTCInfo() (string, error) {
 func getEOSInfo() (string, error) {
 	var infoUrl = "https://www.aicoin.cn/api/coin-profile/index?coin_type=enterpriseOperationSystem&currency=cny"
 	var infoRsp CoinBase
-	err := gout.GET(infoUrl).BindJSON(&infoRsp).Do()
+	err := gout.GET(infoUrl).SetHeader(gout.H{
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+		"Referer":    "https://www.aicoin.cn/",
+		"Host":       "www.aicoin.cn"}).BindJSON(&infoRsp).Do()
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return "", err
