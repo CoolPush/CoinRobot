@@ -53,6 +53,7 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 		log.Errorf("err: %v", err)
 		return err
 	}
+	var news string
 	switch event.Type {
 	case ChannelNameSingle:
 		var msg SendMessage
@@ -86,38 +87,72 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 
 		switch msg.MessageType {
 		case MessageTypeBTC:
-			news, err := getBTCInfo()
-			if err != nil {
-				log.Errorf("err: %v", err)
-				return err
-			}
-			msg.Message = news
+			news, err = getCoinInfo(PathInfoBTC)
 		case MessageTypeETH:
-			news, err := getETHInfo()
-			if err != nil {
-				log.Errorf("err: %v", err)
-				return err
-			}
-			msg.Message = news
+			news, err = getCoinInfo(PathInfoETH)
 		case MessageTypeLTC:
-			news, err := getLTCInfo()
-			if err != nil {
-				log.Errorf("err: %v", err)
-				return err
-			}
-			msg.Message = news
+			news, err = getCoinInfo(PathInfoLTC)
+		case MessageTypeBCH:
+			news, err = getCoinInfo(PathInfoBCH)
+		case MessageTypeXRP:
+			news, err = getCoinInfo(PathInfoXRP)
+		case MessageTypeDOT:
+			news, err = getCoinInfo(PathInfoDOT)
+		case MessageTypeADA:
+			news, err = getCoinInfo(PathInfoADA)
+		case MessageTypeLINK:
+			news, err = getCoinInfo(PathInfoLINK)
+		case MessageTypeBNB:
+			news, err = getCoinInfo(PathInfoBNB)
+		case MessageTypeXLM:
+			news, err = getCoinInfo(PathInfoXLM)
+		case MessageTypeWBTC:
+			news, err = getCoinInfo(PathInfoWBTC)
+		case MessageTypeBSV:
+			news, err = getCoinInfo(PathInfoBSV)
 		case MessageTypeEOS:
-			news, err := getEOSInfo()
-			if err != nil {
-				log.Errorf("err: %v", err)
-				return err
-			}
-			msg.Message = news
+			news, err = getCoinInfo(PathInfoEOS)
+		case MessageTypeAAVE:
+			news, err = getCoinInfo(PathInfoAAVE)
+		case MessageTypeXMR:
+			news, err = getCoinInfo(PathInfoXMR)
+		case MessageTypeUNI:
+			news, err = getCoinInfo(PathInfoUNI)
+		case MessageTypeSNX:
+			news, err = getCoinInfo(PathInfoSNX)
+		case MessageTypeXTZ:
+			news, err = getCoinInfo(PathInfoXTZ)
+		case MessageTypeTRX:
+			news, err = getCoinInfo(PathInfoTRX)
+		case MessageTypeVET:
+			news, err = getCoinInfo(PathInfoVET)
+		case MessageTypeXEM:
+			news, err = getCoinInfo(PathInfoXEM)
+		case MessageTypeATOM:
+			news, err = getCoinInfo(PathInfoATOM)
+		case MessageTypeTHETA:
+			news, err = getCoinInfo(PathInfoTHETA)
+		case MessageTypeNEO:
+			news, err = getCoinInfo(PathInfoNEO)
+		case MessageTypeCRO:
+			news, err = getCoinInfo(PathInfoCRO)
+		case MessageTypeOKB:
+			news, err = getCoinInfo(PathInfoOKB)
+		case MessageTypeDAI:
+			news, err = getCoinInfo(PathInfoDAI)
+		case MessageTypeLEO:
+			news, err = getCoinInfo(PathInfoLEO)
 		case MessageTypeNil:
+			news = msg.Message
 		default:
 			log.Warnf("unsupport type")
 			return nil
 		}
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+		msg.Message = news
 
 		err = pop.sendGroupMessage(&msg)
 		if err != nil {
@@ -211,85 +246,9 @@ func (pop *Popper) sendGroupMessage(data *SendMessage) error {
 	return nil
 }
 
-func getBTCInfo() (string, error) {
-	var infoUrl = "https://www.aicoin.cn/api/coin-profile/index?coin_type=bitcoin&currency=cny"
+func getCoinInfo(src string) (string, error) {
 	var infoRsp CoinBase
-	err := gout.GET(infoUrl).SetHeader(gout.H{
-		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
-		"Referer":    "https://www.aicoin.cn/",
-		"Host":       "www.aicoin.cn"}).BindJSON(&infoRsp).Do()
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return "", err
-	}
-	if !infoRsp.Ok {
-		log.Errorf("get rsp: %+v", infoRsp)
-		return "", errors.New("response err")
-	}
-
-	if infoRsp.Info == nil {
-		log.Errorf("get rsp: %+v", infoRsp)
-		return "", errors.New("response empty")
-	}
-	var info = infoRsp.Info
-	content := "当前币种: " + info.Name + "\n当前美元价位: " + info.LastUsd + "$\n当前RMB价位: " + info.LastCny + "￥\n24小时涨幅: " + info.Degree24H + "%\n涨幅金额: " + info.Change24H + "￥\n多空博弈: " + getOrient(info.Orient) + "\n多空占比: " + info.Orient + "%\n市值排名: 顺" + info.Rank + "位\n当前市值: " + getSupplyValue(info.SupplyValue) + "\n标签: " + strings.Join(info.Labels, ",")
-	return content, nil
-}
-
-func getETHInfo() (string, error) {
-	var infoUrl = "https://www.aicoin.cn/api/coin-profile/index?coin_type=ethereum&currency=cny"
-	var infoRsp CoinBase
-	err := gout.GET(infoUrl).SetHeader(gout.H{
-		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
-		"Referer":    "https://www.aicoin.cn/",
-		"Host":       "www.aicoin.cn"}).BindJSON(&infoRsp).Do()
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return "", err
-	}
-	if !infoRsp.Ok {
-		log.Errorf("get rsp: %+v", infoRsp)
-		return "", errors.New("response err")
-	}
-
-	if infoRsp.Info == nil {
-		log.Errorf("get rsp: %+v", infoRsp)
-		return "", errors.New("response empty")
-	}
-	var info = infoRsp.Info
-	content := "当前币种: " + info.Name + "\n当前美元价位: " + info.LastUsd + "$\n当前RMB价位: " + info.LastCny + "￥\n24小时涨幅: " + info.Degree24H + "%\n涨幅金额: " + info.Change24H + "￥\n多空博弈: " + getOrient(info.Orient) + "\n多空占比: " + info.Orient + "%\n市值排名: 顺" + info.Rank + "位\n当前市值: " + getSupplyValue(info.SupplyValue) + "\n标签: " + strings.Join(info.Labels, ",")
-	return content, nil
-}
-
-func getLTCInfo() (string, error) {
-	var infoUrl = "https://www.aicoin.cn/api/coin-profile/index?coin_type=litecoin&currency=cny"
-	var infoRsp CoinBase
-	err := gout.GET(infoUrl).SetHeader(gout.H{
-		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
-		"Referer":    "https://www.aicoin.cn/",
-		"Host":       "www.aicoin.cn"}).BindJSON(&infoRsp).Do()
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return "", err
-	}
-	if !infoRsp.Ok {
-		log.Errorf("get rsp: %+v", infoRsp)
-		return "", errors.New("response err")
-	}
-
-	if infoRsp.Info == nil {
-		log.Errorf("get rsp: %+v", infoRsp)
-		return "", errors.New("response empty")
-	}
-	var info = infoRsp.Info
-	content := "当前币种: " + info.Name + "\n当前美元价位: " + info.LastUsd + "$\n当前RMB价位: " + info.LastCny + "￥\n24小时涨幅: " + info.Degree24H + "%\n涨幅金额: " + info.Change24H + "￥\n多空博弈: " + getOrient(info.Orient) + "\n多空占比: " + info.Orient + "%\n市值排名: 顺" + info.Rank + "位\n当前市值: " + getSupplyValue(info.SupplyValue) + "\n标签: " + strings.Join(info.Labels, ",")
-	return content, nil
-}
-
-func getEOSInfo() (string, error) {
-	var infoUrl = "https://www.aicoin.cn/api/coin-profile/index?coin_type=enterpriseOperationSystem&currency=cny"
-	var infoRsp CoinBase
-	err := gout.GET(infoUrl).SetHeader(gout.H{
+	err := gout.GET(src).SetHeader(gout.H{
 		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
 		"Referer":    "https://www.aicoin.cn/",
 		"Host":       "www.aicoin.cn"}).BindJSON(&infoRsp).Do()

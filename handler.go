@@ -12,6 +12,8 @@ import (
 
 var log = logger.NewLog()
 
+var supportCoinList = []string{"#比特币/#BTC", "#以太坊/#ETH", "#莱特币/#LTC", "#柚子币/#EOS", "#比特现金/#BCH", "#瑞波币/#XRP", "#波卡币#/#DOT", "#艾达币/#ADA", "#LINK", "#币安币/#BNB", "#恒星币/#XLM", "#WBTC", "#比特币SV/#BSV", "#AAVE", "#门罗币/#XMR", "#UNI", "#SNX", "#XTZ", "#波场/#TRX", "#唯链/#VET", "#新经币/#XEM", "#ATOM", "#THETA", "#小蚁币/#NEO", "#CRO", "#OK积分/#OKB", "#DAI", "#LEO"}
+
 func Handler(this *gin.Context) {
 	body, err := ioutil.ReadAll(this.Request.Body)
 	if err != nil {
@@ -71,8 +73,8 @@ func Handler(this *gin.Context) {
 }
 
 func handlerGroup(message *Message) error {
-	if strings.Contains(message.RawMessage, "#比特币小助手") {
-		message.RawMessage = "请按照如下格式在群内发言即可获得关注币种的最新消息:\n#比特币\n#以太坊\n#莱特币\n#柚子币"
+	if strings.Contains(message.RawMessage, "#比特币小助手") || strings.Contains(message.RawMessage, "#帮助") {
+		message.RawMessage = "请按照如下格式在群内发言即可获得关注币种的最新消息:\n" + strings.Join(supportCoinList, "\n")
 		err := send2Group(message, mq.MessageTypeNil)
 		if err != nil {
 			log.Errorf("err: %v", err)
@@ -81,7 +83,7 @@ func handlerGroup(message *Message) error {
 		return nil
 	}
 
-	if strings.Contains(message.RawMessage, "#比特币") {
+	if strings.Contains(message.RawMessage, "#比特币") || strings.Contains(strings.ToLower(message.RawMessage), "#btc") {
 		err := send2Group(message, mq.MessageTypeBTC)
 		if err != nil {
 			log.Errorf("err: %v", err)
@@ -90,7 +92,7 @@ func handlerGroup(message *Message) error {
 		return nil
 	}
 
-	if strings.Contains(message.RawMessage, "#以太坊") {
+	if strings.Contains(message.RawMessage, "#以太") || strings.Contains(strings.ToLower(message.RawMessage), "#eth") {
 		err := send2Group(message, mq.MessageTypeETH)
 		if err != nil {
 			log.Errorf("err: %v", err)
@@ -99,7 +101,7 @@ func handlerGroup(message *Message) error {
 		return nil
 	}
 
-	if strings.Contains(message.RawMessage, "#莱特币") {
+	if strings.Contains(message.RawMessage, "#莱特") || strings.Contains(strings.ToLower(message.RawMessage), "#ltc") {
 		err := send2Group(message, mq.MessageTypeLTC)
 		if err != nil {
 			log.Errorf("err: %v", err)
@@ -108,7 +110,7 @@ func handlerGroup(message *Message) error {
 		return nil
 	}
 
-	if strings.Contains(message.RawMessage, "#柚子币") {
+	if strings.Contains(message.RawMessage, "#柚子") || strings.Contains(strings.ToLower(message.RawMessage), "#eos") {
 		err := send2Group(message, mq.MessageTypeEOS)
 		if err != nil {
 			log.Errorf("err: %v", err)
