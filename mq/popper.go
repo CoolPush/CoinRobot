@@ -20,7 +20,7 @@ func NewPopper(topicName, channelName string) (*Popper, error) {
 	var consumer *nsq.Consumer
 	var err error
 	var config = nsq.NewConfig()
-	config.LookupdPollInterval = time.Second * 15
+	config.LookupdPollInterval = time.Second * 30
 	if consumer, err = nsq.NewConsumer(topicName, channelName, config); err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 			}
 			msg.Message = news
 		case MessageTypeEOS:
-			news, err := getLTCInfo()
+			news, err := getEOSInfo()
 			if err != nil {
 				log.Errorf("err: %v", err)
 				return err
