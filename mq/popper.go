@@ -184,6 +184,7 @@ func (pop *Popper) sendGroupMessage(data *SendMessage) error {
 	}
 
 	if pushRet.RetCode != 0 {
+		log.Errorf("push rsp: %+v", pushRet)
 		return errors.New("推送异常")
 
 	}
