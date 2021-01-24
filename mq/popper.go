@@ -90,7 +90,6 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 				log.Errorf("err: %v", err)
 				return err
 			}
-			log.Infof("get info: %v", news)
 			msg.Message = news
 		case MessageTypeETH:
 			news, err := getETHInfo()
@@ -98,7 +97,6 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 				log.Errorf("err: %v", err)
 				return err
 			}
-			log.Infof("get info: %v", news)
 			msg.Message = news
 		case MessageTypeLTC:
 			news, err := getLTCInfo()
@@ -106,7 +104,6 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 				log.Errorf("err: %v", err)
 				return err
 			}
-			log.Infof("get info: %v", news)
 			msg.Message = news
 		case MessageTypeEOS:
 			news, err := getEOSInfo()
@@ -114,7 +111,6 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 				log.Errorf("err: %v", err)
 				return err
 			}
-			log.Infof("get info: %v", news)
 			msg.Message = news
 		default:
 			log.Warnf("unsupport type")
@@ -165,6 +161,12 @@ func (pop *Popper) sendSingleMessage(data *SendMessage) error {
 }
 
 func (pop *Popper) sendGroupMessage(data *SendMessage) error {
+	log.Infof("get sendGroupMessage data: %+v", data)
+	if data.Message == "" {
+		log.Errorf("get message empty")
+		return errors.New("get message empty")
+	}
+
 	//发起推送
 	var pushRet = &struct {
 		RetCode int64  `json:"retcode"`
