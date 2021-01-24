@@ -72,12 +72,13 @@ func Handler(this *gin.Context) {
 
 func handlerGroup(message *Message) error {
 	if strings.Contains(message.RawMessage, "#比特币小助手") {
-		message.RawMessage = "请按照如下格式在群内发言即可获得关注币种的最新消息:\n#比特币\n#以太坊\n#莱特币\n#柚子"
+		message.RawMessage = "请按照如下格式在群内发言即可获得关注币种的最新消息:\n#比特币\n#以太坊\n#莱特币\n#柚子币"
 		err := send2Group(message, mq.MessageTypeNil)
 		if err != nil {
 			log.Errorf("err: %v", err)
 			return err
 		}
+		return nil
 	}
 
 	if strings.Contains(message.RawMessage, "#比特币") {
@@ -86,6 +87,7 @@ func handlerGroup(message *Message) error {
 			log.Errorf("err: %v", err)
 			return err
 		}
+		return nil
 	}
 
 	if strings.Contains(message.RawMessage, "#以太坊") {
@@ -94,6 +96,7 @@ func handlerGroup(message *Message) error {
 			log.Errorf("err: %v", err)
 			return err
 		}
+		return nil
 	}
 
 	if strings.Contains(message.RawMessage, "#莱特币") {
@@ -102,6 +105,7 @@ func handlerGroup(message *Message) error {
 			log.Errorf("err: %v", err)
 			return err
 		}
+		return nil
 	}
 
 	if strings.Contains(message.RawMessage, "#柚子币") {
@@ -110,6 +114,7 @@ func handlerGroup(message *Message) error {
 			log.Errorf("err: %v", err)
 			return err
 		}
+		return nil
 	}
 	return nil
 }
