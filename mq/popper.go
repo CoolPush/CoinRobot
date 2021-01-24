@@ -1,6 +1,7 @@
 package mq
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"github.com/guonaihong/gout"
@@ -112,6 +113,7 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 				return err
 			}
 			msg.Message = news
+		case MessageTypeNil:
 		default:
 			log.Warnf("unsupport type")
 			return nil
@@ -167,12 +169,26 @@ func (pop *Popper) sendGroupMessage(data *SendMessage) error {
 		return errors.New("get message empty")
 	}
 
+	var body = SendGroupMessage{
+		GroupId: data.SendTo,
+		Message: data.Message,
+	}
+
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return err
+	}
+	log.Infof("json body: %v", body)
+
+	reqBody := bytes.NewBuffer(jsonBody)
+
 	//发起推送
 	var pushRet = &struct {
 		RetCode int64  `json:"retcode"`
 		Status  string `json:"status"`
 	}{}
-	resp, err := http.Post(data.SendURL, "application/x-www-form-urlencoded", strings.NewReader("group_id="+strconv.FormatInt(data.SendTo, 10)+"&message="+data.Message))
+	resp, err := http.Post(data.SendURL, "application/json", reqBody)
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return err

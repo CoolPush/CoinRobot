@@ -27,6 +27,7 @@ const (
 	MessageTypeETH = "ETH"
 	MessageTypeLTC = "LTC"
 	MessageTypeEOS = "EOS"
+	MessageTypeNil = "NIL"
 )
 
 type SendMessage struct {
@@ -34,6 +35,16 @@ type SendMessage struct {
 	SendTo      int64  `json:"send_to"`
 	MessageType string `json:"message_type"`
 	Message     string `json:"message"`
+}
+
+type SendGroupMessage struct {
+	GroupId int64  `json:"group_id"`
+	Message string `json:"message"`
+}
+
+type SendPrivateMessage struct {
+	UserId  int64  `json:"user_id"`
+	Message string `json:"message"`
 }
 
 type CoinInfo struct {

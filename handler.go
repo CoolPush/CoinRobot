@@ -71,9 +71,9 @@ func Handler(this *gin.Context) {
 }
 
 func handlerGroup(message *Message) error {
-	if strings.Contains(message.RawMessage, "比特币小助手") {
-		content := "请按照如下格式在群内发言即可获得关注币种的最新消息:\n#比特币\n#以太坊\n#莱特币\n#柚子"
-		err := send2Group(message, content)
+	if strings.Contains(message.RawMessage, "#比特币小助手") {
+		message.RawMessage = "请按照如下格式在群内发言即可获得关注币种的最新消息:\n#比特币\n#以太坊\n#莱特币\n#柚子"
+		err := send2Group(message, mq.MessageTypeNil)
 		if err != nil {
 			log.Errorf("err: %v", err)
 			return err
@@ -121,6 +121,7 @@ func send2Group(message *Message, typ string) error {
 			SendURL:     "http://127.0.0.1:5799/send_group_msg",
 			SendTo:      message.GroupId,
 			MessageType: typ,
+			Message:     message.RawMessage,
 		},
 	}
 	msg, err := json.Marshal(data)
