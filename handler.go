@@ -118,7 +118,7 @@ func send2Group(message *Message, typ string) error {
 	data := mq.SenderMqMsg{
 		Type: mq.ChannelNameGroup,
 		Data: &mq.SendMessage{
-			SendURL:     "http://127.0.0.1:5700/send_group_msg",
+			SendURL:     "http://127.0.0.1:5799/send_group_msg",
 			SendTo:      message.GroupId,
 			MessageType: typ,
 		},
