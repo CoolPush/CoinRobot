@@ -90,6 +90,7 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 				log.Errorf("err: %v", err)
 				return err
 			}
+			log.Infof("get info: %v", news)
 			msg.Message = news
 		case MessageTypeETH:
 			news, err := getETHInfo()
@@ -97,6 +98,7 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 				log.Errorf("err: %v", err)
 				return err
 			}
+			log.Infof("get info: %v", news)
 			msg.Message = news
 		case MessageTypeLTC:
 			news, err := getLTCInfo()
@@ -104,6 +106,7 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 				log.Errorf("err: %v", err)
 				return err
 			}
+			log.Infof("get info: %v", news)
 			msg.Message = news
 		case MessageTypeEOS:
 			news, err := getEOSInfo()
@@ -111,6 +114,7 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 				log.Errorf("err: %v", err)
 				return err
 			}
+			log.Infof("get info: %v", news)
 			msg.Message = news
 		default:
 			log.Warnf("unsupport type")
@@ -186,7 +190,6 @@ func (pop *Popper) sendGroupMessage(data *SendMessage) error {
 	if pushRet.RetCode != 0 {
 		log.Errorf("push rsp: %+v", pushRet)
 		return errors.New("推送异常")
-
 	}
 
 	return nil
@@ -213,6 +216,7 @@ func getBTCInfo() (string, error) {
 		return "", errors.New("response empty")
 	}
 	var info = infoRsp.Info
+	log.Infof("rsp: %v", info)
 	content := "当前币种: " + info.Name + "\n当前美元价位: " + info.LastUsd + "$\n当前RMB价位: " + info.LastCny + "￥\n24小时涨幅: " + info.Degree24H + "%\n涨幅金额: " + info.Change24H + "￥\n多空博弈: " + getOrient(info.Orient) + "多空占比: " + info.Orient + "%\n市值排名: 顺" + info.Rank + "位\n当前市值: " + getSupplyValue(info.SupplyValue) + "\n标签: " + strings.Join(info.Labels, ",")
 	return content, nil
 }
@@ -238,6 +242,7 @@ func getETHInfo() (string, error) {
 		return "", errors.New("response empty")
 	}
 	var info = infoRsp.Info
+	log.Infof("rsp: %v", info)
 	content := "当前币种: " + info.Name + "\n当前美元价位: " + info.LastUsd + "$\n当前RMB价位: " + info.LastCny + "￥\n24小时涨幅: " + info.Degree24H + "%\n涨幅金额: " + info.Change24H + "￥\n多空博弈: " + getOrient(info.Orient) + "多空占比: " + info.Orient + "%\n市值排名: 顺" + info.Rank + "位\n当前市值: " + getSupplyValue(info.SupplyValue) + "\n标签: " + strings.Join(info.Labels, ",")
 	return content, nil
 }
@@ -263,6 +268,7 @@ func getLTCInfo() (string, error) {
 		return "", errors.New("response empty")
 	}
 	var info = infoRsp.Info
+	log.Infof("rsp: %v", info)
 	content := "当前币种: " + info.Name + "\n当前美元价位: " + info.LastUsd + "$\n当前RMB价位: " + info.LastCny + "￥\n24小时涨幅: " + info.Degree24H + "%\n涨幅金额: " + info.Change24H + "￥\n多空博弈: " + getOrient(info.Orient) + "多空占比: " + info.Orient + "%\n市值排名: 顺" + info.Rank + "位\n当前市值: " + getSupplyValue(info.SupplyValue) + "\n标签: " + strings.Join(info.Labels, ",")
 	return content, nil
 }
@@ -288,6 +294,7 @@ func getEOSInfo() (string, error) {
 		return "", errors.New("response empty")
 	}
 	var info = infoRsp.Info
+	log.Infof("rsp: %v", info)
 	content := "当前币种: " + info.Name + "\n当前美元价位: " + info.LastUsd + "$\n当前RMB价位: " + info.LastCny + "￥\n24小时涨幅: " + info.Degree24H + "%\n涨幅金额: " + info.Change24H + "￥\n多空博弈: " + getOrient(info.Orient) + "多空占比: " + info.Orient + "%\n市值排名: 顺" + info.Rank + "位\n当前市值: " + getSupplyValue(info.SupplyValue) + "\n标签: " + strings.Join(info.Labels, ",")
 	return content, nil
 }
