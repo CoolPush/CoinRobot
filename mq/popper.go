@@ -67,10 +67,12 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 		return err
 	}
 
-	log.Infof("get mq msg: %+v", m)
-
 	if path, exist := CoinMap[m.MessageType]; exist {
-		news, err = getCoinInfo(path)
+		if path != "" {
+			news, err = getCoinInfo(path)
+		} else {
+			news = m.Message
+		}
 	} else {
 		log.Warnf("unsupport type: %v", m.MessageType)
 		return nil
