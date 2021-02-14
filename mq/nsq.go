@@ -85,6 +85,37 @@ const (
 	PathInfoLEO   = "https://www.aicoin.cn/api/coin-profile/index?coin_type=leo&currency=cny"
 )
 
+var CoinMap = map[string]string{
+	MessageTypeBTC:   PathInfoBTC,
+	MessageTypeETH:   PathInfoETH,
+	MessageTypeLTC:   PathInfoLTC,
+	MessageTypeEOS:   PathInfoEOS,
+	MessageTypeBCH:   PathInfoBCH,
+	MessageTypeXRP:   PathInfoXRP,
+	MessageTypeDOT:   PathInfoDOT,
+	MessageTypeADA:   PathInfoADA,
+	MessageTypeLINK:  PathInfoLINK,
+	MessageTypeBNB:   PathInfoBNB,
+	MessageTypeXLM:   PathInfoXLM,
+	MessageTypeWBTC:  PathInfoWBTC,
+	MessageTypeBSV:   PathInfoBSV,
+	MessageTypeAAVE:  PathInfoAAVE,
+	MessageTypeXMR:   PathInfoXMR,
+	MessageTypeUNI:   PathInfoUNI,
+	MessageTypeSNX:   PathInfoSNX,
+	MessageTypeXTZ:   PathInfoXTZ,
+	MessageTypeTRX:   PathInfoTRX,
+	MessageTypeVET:   PathInfoVET,
+	MessageTypeXEM:   PathInfoXEM,
+	MessageTypeATOM:  PathInfoATOM,
+	MessageTypeTHETA: PathInfoTHETA,
+	MessageTypeNEO:   PathInfoNEO,
+	MessageTypeCRO:   PathInfoCRO,
+	MessageTypeOKB:   PathInfoOKB,
+	MessageTypeDAI:   PathInfoDAI,
+	MessageTypeLEO:   PathInfoLEO,
+}
+
 type SendMessage struct {
 	SendURL     string `json:"send_url"`
 	SendTo      int64  `json:"send_to"`

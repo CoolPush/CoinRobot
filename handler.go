@@ -12,7 +12,7 @@ import (
 
 var log = logger.NewLog()
 
-var supportCoinList = []string{"#比特币/#BTC", "#以太坊/#ETH", "#莱特币/#LTC", "#柚子币/#EOS", "#比特现金/#BCH", "#瑞波币/#XRP", "#波卡币#/#DOT", "#艾达币/#ADA", "#LINK", "#币安币/#BNB", "#恒星币/#XLM", "#WBTC", "#比特币SV/#BSV", "#AAVE", "#门罗币/#XMR", "#UNI", "#SNX", "#XTZ", "#波场/#TRX", "#唯链/#VET", "#新经币/#XEM", "#ATOM", "#THETA", "#小蚁币/#NEO", "#CRO", "#OK积分/#OKB", "#DAI", "#LEO"}
+var supportCoinList = []string{"#比特币/#BTC", "#以太坊/#ETH", "#莱特币/#LTC", "#柚子币/#EOS", "#比特现金/#BCH", "#瑞波币/#XRP", "#波卡币#/#DOT", "#LINK", "#比特币SV/#BSV", "#门罗币/#XMR", "#UNI", "#波场/#TRX", "#THETA"}
 
 func Handler(this *gin.Context) {
 	body, err := ioutil.ReadAll(this.Request.Body)
@@ -73,7 +73,7 @@ func Handler(this *gin.Context) {
 }
 
 func handlerGroup(message *Message) error {
-	if strings.Contains(message.RawMessage, "#比特币小助手") || strings.Contains(message.RawMessage, "#帮助") {
+	if strings.Contains(message.RawMessage, "#助手") || strings.Contains(message.RawMessage, "#帮助") {
 		message.RawMessage = "请按照如下格式在群内发言即可获得关注币种的最新消息:\n" + strings.Join(supportCoinList, "\n")
 		err := send2Group(message, mq.MessageTypeNil)
 		if err != nil {
@@ -83,7 +83,7 @@ func handlerGroup(message *Message) error {
 		return nil
 	}
 
-	if strings.Contains(message.RawMessage, "#比特币") || strings.Contains(strings.ToLower(message.RawMessage), "#btc") {
+	if strings.Contains(message.RawMessage, "#比特") || strings.Contains(strings.ToLower(message.RawMessage), "#btc") {
 		err := send2Group(message, mq.MessageTypeBTC)
 		if err != nil {
 			log.Errorf("err: %v", err)
@@ -118,6 +118,88 @@ func handlerGroup(message *Message) error {
 		}
 		return nil
 	}
+
+	if strings.Contains(message.RawMessage, "#比特现金") || strings.Contains(strings.ToLower(message.RawMessage), "#bch") {
+		err := send2Group(message, mq.MessageTypeBCH)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+		return nil
+	}
+
+	if strings.Contains(message.RawMessage, "#瑞波") || strings.Contains(strings.ToLower(message.RawMessage), "#xrp") {
+		err := send2Group(message, mq.MessageTypeXRP)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+		return nil
+	}
+
+	if strings.Contains(message.RawMessage, "#波卡") || strings.Contains(strings.ToLower(message.RawMessage), "#dot") {
+		err := send2Group(message, mq.MessageTypeDOT)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+		return nil
+	}
+
+	if strings.Contains(strings.ToLower(message.RawMessage), "#link") {
+		err := send2Group(message, mq.MessageTypeLINK)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+		return nil
+	}
+
+	if strings.Contains(message.RawMessage, "#SV") || strings.Contains(strings.ToLower(message.RawMessage), "#bsv") {
+		err := send2Group(message, mq.MessageTypeBSV)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+		return nil
+	}
+
+	if strings.Contains(message.RawMessage, "#门罗") || strings.Contains(strings.ToLower(message.RawMessage), "#xmr") {
+		err := send2Group(message, mq.MessageTypeXMR)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+		return nil
+	}
+
+	if strings.Contains(message.RawMessage, "#UNI") || strings.Contains(strings.ToLower(message.RawMessage), "#uni") {
+		err := send2Group(message, mq.MessageTypeUNI)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+		return nil
+	}
+
+	if strings.Contains(message.RawMessage, "#TRX") || strings.Contains(strings.ToLower(message.RawMessage), "#trx") {
+		err := send2Group(message, mq.MessageTypeTRX)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+		return nil
+	}
+
+	if strings.Contains(message.RawMessage, "#THETA") || strings.Contains(strings.ToLower(message.RawMessage), "#theta") {
+		err := send2Group(message, mq.MessageTypeTHETA)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+		return nil
+	}
+
 	return nil
 }
 

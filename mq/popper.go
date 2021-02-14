@@ -26,6 +26,8 @@ func NewPopper(topicName, channelName string) (*Popper, error) {
 		return nil, err
 	}
 
+	consumer.SetLoggerLevel(nsq.LogLevelWarning)
+
 	return &Popper{
 		consumer: consumer,
 	}, nil
@@ -85,69 +87,13 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 			return err
 		}
 
-		switch msg.MessageType {
-		case MessageTypeBTC:
-			news, err = getCoinInfo(PathInfoBTC)
-		case MessageTypeETH:
-			news, err = getCoinInfo(PathInfoETH)
-		case MessageTypeLTC:
-			news, err = getCoinInfo(PathInfoLTC)
-		case MessageTypeBCH:
-			news, err = getCoinInfo(PathInfoBCH)
-		case MessageTypeXRP:
-			news, err = getCoinInfo(PathInfoXRP)
-		case MessageTypeDOT:
-			news, err = getCoinInfo(PathInfoDOT)
-		case MessageTypeADA:
-			news, err = getCoinInfo(PathInfoADA)
-		case MessageTypeLINK:
-			news, err = getCoinInfo(PathInfoLINK)
-		case MessageTypeBNB:
-			news, err = getCoinInfo(PathInfoBNB)
-		case MessageTypeXLM:
-			news, err = getCoinInfo(PathInfoXLM)
-		case MessageTypeWBTC:
-			news, err = getCoinInfo(PathInfoWBTC)
-		case MessageTypeBSV:
-			news, err = getCoinInfo(PathInfoBSV)
-		case MessageTypeEOS:
-			news, err = getCoinInfo(PathInfoEOS)
-		case MessageTypeAAVE:
-			news, err = getCoinInfo(PathInfoAAVE)
-		case MessageTypeXMR:
-			news, err = getCoinInfo(PathInfoXMR)
-		case MessageTypeUNI:
-			news, err = getCoinInfo(PathInfoUNI)
-		case MessageTypeSNX:
-			news, err = getCoinInfo(PathInfoSNX)
-		case MessageTypeXTZ:
-			news, err = getCoinInfo(PathInfoXTZ)
-		case MessageTypeTRX:
-			news, err = getCoinInfo(PathInfoTRX)
-		case MessageTypeVET:
-			news, err = getCoinInfo(PathInfoVET)
-		case MessageTypeXEM:
-			news, err = getCoinInfo(PathInfoXEM)
-		case MessageTypeATOM:
-			news, err = getCoinInfo(PathInfoATOM)
-		case MessageTypeTHETA:
-			news, err = getCoinInfo(PathInfoTHETA)
-		case MessageTypeNEO:
-			news, err = getCoinInfo(PathInfoNEO)
-		case MessageTypeCRO:
-			news, err = getCoinInfo(PathInfoCRO)
-		case MessageTypeOKB:
-			news, err = getCoinInfo(PathInfoOKB)
-		case MessageTypeDAI:
-			news, err = getCoinInfo(PathInfoDAI)
-		case MessageTypeLEO:
-			news, err = getCoinInfo(PathInfoLEO)
-		case MessageTypeNil:
-			news = msg.Message
-		default:
+		if path, exist := CoinMap[msg.MessageType]; exist {
+			news, err = getCoinInfo(path)
+		} else {
 			log.Warnf("unsupport type")
 			return nil
 		}
+
 		if err != nil {
 			log.Errorf("err: %v", err)
 			return err
@@ -172,18 +118,11 @@ func (pop *Popper) sendSingleMessage(data *SendMessage) error {
 		Status  string `json:"status"`
 	}{}
 
-	resp, err := http.Post(data.SendURL, "application/x-www-form-urlencoded", strings.NewReader("user_id="+strconv.FormatInt(data.SendTo, 10)+"&message="+data.Message))
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return err
-	}
-	defer resp.Body.Close()
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return err
-	}
-	err = json.Unmarshal(content, pushRet)
+	err := gout.POST(data.SendURL).SetJSON(gout.H{
+		"user_id": strconv.FormatInt(data.SendTo, 10),
+		"message": data.Message,
+	}).Do()
+
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return err
@@ -191,7 +130,6 @@ func (pop *Popper) sendSingleMessage(data *SendMessage) error {
 
 	if pushRet.RetCode != 0 {
 		return errors.New("推送异常")
-
 	}
 
 	return nil
