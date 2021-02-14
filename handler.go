@@ -91,7 +91,7 @@ func Handler(this *gin.Context) {
 			return
 		}
 	default:
-		log.Warnf("skip post_type")
+		log.Warnf("skip post_type: %v", message.PostType)
 	}
 
 	if err != nil {
@@ -162,6 +162,7 @@ func handlerSend(message *PostMessage, sendType string) error {
 		coinType = mq.MessageTypeTHETA
 	}
 
+	log.Infof("get coin_type: %+v, get message: %+v", coinType, message)
 	switch sendType {
 	case MessageGroup:
 		err := send2Group(message, coinType)
