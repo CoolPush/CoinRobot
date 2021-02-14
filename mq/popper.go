@@ -60,11 +60,14 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 		log.Errorf("err: %v", err)
 		return err
 	}
-	err = json.Unmarshal(msgBody, &msg)
+
+	err = json.Unmarshal(msgBody, &m)
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return err
 	}
+
+	log.Infof("get mq msg: %+v", m)
 
 	if path, exist := CoinMap[m.MessageType]; exist {
 		news, err = getCoinInfo(path)

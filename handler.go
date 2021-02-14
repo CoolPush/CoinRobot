@@ -90,6 +90,10 @@ func Handler(this *gin.Context) {
 			})
 			return
 		}
+	case TypeNotice:
+		fallthrough
+	case TypeMetaEvent:
+		break
 	default:
 		log.Warnf("skip post_type: %v", message.PostType)
 	}
