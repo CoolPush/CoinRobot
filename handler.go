@@ -109,60 +109,66 @@ func Handler(this *gin.Context) {
 
 func handlerSend(message *PostMessage, sendType string) error {
 	var coinType string
-	if strings.Contains(message.RawMessage, "#助手") || strings.Contains(message.RawMessage, "#帮助") {
+
+	msg, ok := message.Message.Message.(string)
+	if !ok {
+		return nil
+	}
+
+	if strings.Contains(msg, "#助手") || strings.Contains(msg, "#帮助") {
 		message.RawMessage = "请按照如下格式在群内发言即可获得关注币种的最新消息:\n" + strings.Join(supportCoinList, "\n")
 		coinType = mq.MessageTypeNil
 	}
 
-	if strings.Contains(message.RawMessage, "#比特") || strings.Contains(strings.ToLower(message.RawMessage), "#btc") {
+	if strings.Contains(msg, "#比特") || strings.Contains(strings.ToLower(msg), "#btc") {
 		coinType = mq.MessageTypeBTC
 	}
 
-	if strings.Contains(message.RawMessage, "#以太") || strings.Contains(strings.ToLower(message.RawMessage), "#eth") {
+	if strings.Contains(msg, "#以太") || strings.Contains(strings.ToLower(msg), "#eth") {
 		coinType = mq.MessageTypeETH
 	}
 
-	if strings.Contains(message.RawMessage, "#莱特") || strings.Contains(strings.ToLower(message.RawMessage), "#ltc") {
+	if strings.Contains(msg, "#莱特") || strings.Contains(strings.ToLower(msg), "#ltc") {
 		coinType = mq.MessageTypeLTC
 	}
 
-	if strings.Contains(message.RawMessage, "#柚子") || strings.Contains(strings.ToLower(message.RawMessage), "#eos") {
+	if strings.Contains(msg, "#柚子") || strings.Contains(strings.ToLower(msg), "#eos") {
 		coinType = mq.MessageTypeEOS
 	}
 
-	if strings.Contains(message.RawMessage, "#比特现金") || strings.Contains(strings.ToLower(message.RawMessage), "#bch") {
+	if strings.Contains(msg, "#比特现金") || strings.Contains(strings.ToLower(msg), "#bch") {
 		coinType = mq.MessageTypeBCH
 	}
 
-	if strings.Contains(message.RawMessage, "#瑞波") || strings.Contains(strings.ToLower(message.RawMessage), "#xrp") {
+	if strings.Contains(msg, "#瑞波") || strings.Contains(strings.ToLower(msg), "#xrp") {
 		coinType = mq.MessageTypeXRP
 	}
 
-	if strings.Contains(message.RawMessage, "#波卡") || strings.Contains(strings.ToLower(message.RawMessage), "#dot") {
+	if strings.Contains(msg, "#波卡") || strings.Contains(strings.ToLower(msg), "#dot") {
 		coinType = mq.MessageTypeDOT
 	}
 
-	if strings.Contains(strings.ToLower(message.RawMessage), "#link") {
+	if strings.Contains(strings.ToLower(msg), "#link") {
 		coinType = mq.MessageTypeLINK
 	}
 
-	if strings.Contains(message.RawMessage, "#SV") || strings.Contains(strings.ToLower(message.RawMessage), "#bsv") {
+	if strings.Contains(msg, "#SV") || strings.Contains(strings.ToLower(msg), "#bsv") {
 		coinType = mq.MessageTypeBSV
 	}
 
-	if strings.Contains(message.RawMessage, "#门罗") || strings.Contains(strings.ToLower(message.RawMessage), "#xmr") {
+	if strings.Contains(msg, "#门罗") || strings.Contains(strings.ToLower(msg), "#xmr") {
 		coinType = mq.MessageTypeXMR
 	}
 
-	if strings.Contains(message.RawMessage, "#UNI") || strings.Contains(strings.ToLower(message.RawMessage), "#uni") {
+	if strings.Contains(msg, "#UNI") || strings.Contains(strings.ToLower(msg), "#uni") {
 		coinType = mq.MessageTypeUNI
 	}
 
-	if strings.Contains(message.RawMessage, "#TRX") || strings.Contains(strings.ToLower(message.RawMessage), "#trx") {
+	if strings.Contains(msg, "#TRX") || strings.Contains(strings.ToLower(msg), "#trx") {
 		coinType = mq.MessageTypeTRX
 	}
 
-	if strings.Contains(message.RawMessage, "#THETA") || strings.Contains(strings.ToLower(message.RawMessage), "#theta") {
+	if strings.Contains(msg, "#THETA") || strings.Contains(strings.ToLower(msg), "#theta") {
 		coinType = mq.MessageTypeTHETA
 	}
 
