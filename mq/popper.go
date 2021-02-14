@@ -1,13 +1,10 @@
 package mq
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"github.com/guonaihong/gout"
 	"github.com/nsqio/go-nsq"
-	"io/ioutil"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -56,51 +53,41 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 		return err
 	}
 	var news string
+
+	var m SendMessage
+	msgBody, err := json.Marshal(event.Data)
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return err
+	}
+	err = json.Unmarshal(msgBody, &msg)
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return err
+	}
+
+	if path, exist := CoinMap[m.MessageType]; exist {
+		news, err = getCoinInfo(path)
+	} else {
+		log.Warnf("unsupport type")
+		return nil
+	}
+
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return err
+	}
+	m.Message = news
+
 	switch event.Type {
 	case ChannelNameSingle:
-		var msg SendMessage
-		msgBody, err := json.Marshal(event.Data)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		err = json.Unmarshal(msgBody, &msg)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		err = pop.sendSingleMessage(&msg)
+		err = pop.sendSingleMessage(&m)
 		if err != nil {
 			log.Errorf("err: %v", err)
 			return err
 		}
 	case ChannelNameGroup:
-		var msg SendMessage
-		msgBody, err := json.Marshal(event.Data)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		err = json.Unmarshal(msgBody, &msg)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-
-		if path, exist := CoinMap[msg.MessageType]; exist {
-			news, err = getCoinInfo(path)
-		} else {
-			log.Warnf("unsupport type")
-			return nil
-		}
-
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		msg.Message = news
-
-		err = pop.sendGroupMessage(&msg)
+		err = pop.sendGroupMessage(&m)
 		if err != nil {
 			log.Errorf("err: %v", err)
 			return err
@@ -141,36 +128,18 @@ func (pop *Popper) sendGroupMessage(data *SendMessage) error {
 		return errors.New("get message empty")
 	}
 
-	var body = SendGroupMessage{
-		GroupId: data.SendTo,
-		Message: data.Message,
-	}
-
-	jsonBody, err := json.Marshal(body)
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return err
-	}
-
-	reqBody := bytes.NewBuffer(jsonBody)
-
 	//发起推送
 	var pushRet = &struct {
 		RetCode int64  `json:"retcode"`
 		Status  string `json:"status"`
 	}{}
-	resp, err := http.Post(data.SendURL, "application/json", reqBody)
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return err
+
+	var payload = SendGroupMessage{
+		GroupId: data.SendTo,
+		Message: data.Message,
 	}
-	defer resp.Body.Close()
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return err
-	}
-	err = json.Unmarshal(content, pushRet)
+	err := gout.POST(data.SendURL).SetJSON(&payload).BindJSON(&pushRet).Do()
+
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return err

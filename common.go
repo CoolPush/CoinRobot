@@ -1,6 +1,13 @@
 package main
 
 const (
+	SendGroupMsg     = "http://127.0.0.1:5799/send_group_msg"
+	SendSingleMsg    = "http://127.0.0.1:5799/send_private_msg"
+	ApproveFriendAdd = "http://127.0.0.1:5799/set_friend_add_request"
+	ApproveGroupAdd  = "http://127.0.0.1:5799/set_group_add_request"
+)
+
+const (
 	TypeMessage   = "message"
 	TypeNotice    = "notice"
 	TypeRequest   = "request"
@@ -16,20 +23,39 @@ const (
 	MessageSubTypeNotice    = "notice"
 )
 
+const (
+	RequestFriendAdd = "friend_add_request"
+	RequestGroupAdd  = "group_add_request"
+
+	RequestTypeGroup  = "group"
+	RequestTypeFriend = "friend"
+)
+
+type PostMessage struct {
+	Time     int64  `json:"time"`
+	SelfId   int64  `json:"self_id"`
+	PostType string `json:"post_type"`
+	SubType  string `json:"sub_type"`
+	UserId   int64  `json:"user_id"`
+	GroupId  int64  `json:"group_id"`
+	Message
+	Request
+}
+
 type Message struct {
-	Time        int64       `json:"time"`
-	SelfId      int64       `json:"self_id"`
-	PostType    string      `json:"post_type"`
 	MessageType string      `json:"message_type"`
-	SubType     string      `json:"sub_type"`
 	MessageId   int32       `json:"message_id"`
-	UserId      int64       `json:"user_id"`
-	GroupId     int64       `json:"group_id"`
 	Anonymous   Anonymous   `json:"anonymous"`
 	Message     interface{} `json:"message"`
 	RawMessage  string      `json:"raw_message"`
 	Font        int32       `json:"font"`
 	Sender      Sender      `json:"sender"`
+}
+
+type Request struct {
+	RequestType string `json:"request_type"`
+	Comment     string `json:"comment"`
+	Flag        string `json:"flag"`
 }
 
 type Sender struct {

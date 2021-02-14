@@ -86,6 +86,7 @@ const (
 )
 
 var CoinMap = map[string]string{
+	MessageTypeNil:   "",
 	MessageTypeBTC:   PathInfoBTC,
 	MessageTypeETH:   PathInfoETH,
 	MessageTypeLTC:   PathInfoLTC,

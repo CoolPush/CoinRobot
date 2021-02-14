@@ -5,7 +5,7 @@ import (
 	"CoinRobot/mq"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
+	"github.com/guonaihong/gout"
 	"net/http"
 	"strings"
 )
@@ -15,18 +15,8 @@ var log = logger.NewLog()
 var supportCoinList = []string{"#比特币/#BTC", "#以太坊/#ETH", "#莱特币/#LTC", "#柚子币/#EOS", "#比特现金/#BCH", "#瑞波币/#XRP", "#波卡币#/#DOT", "#LINK", "#比特币SV/#BSV", "#门罗币/#XMR", "#UNI", "#波场/#TRX", "#THETA"}
 
 func Handler(this *gin.Context) {
-	body, err := ioutil.ReadAll(this.Request.Body)
-	if err != nil {
-		log.Errorf("err: %v", err)
-		this.JSON(http.StatusBadRequest, &Response{
-			Code: http.StatusBadRequest,
-			Data: err,
-		})
-		return
-	}
-
-	var message Message
-	err = json.Unmarshal(body, &message)
+	var message PostMessage
+	err := this.ShouldBind(&message)
 	if err != nil {
 		log.Errorf("err: %v", err)
 		this.JSON(http.StatusBadRequest, &Response{
@@ -48,17 +38,9 @@ func Handler(this *gin.Context) {
 				})
 				return
 			}
-			err = handlerGroup(&message)
-			if err != nil {
-				this.JSON(http.StatusInternalServerError, &Response{
-					Code: http.StatusInternalServerError,
-					Data: err,
-				})
-				return
-			}
-			return
+			err = handlerSend(&message, MessageGroup)
 		case MessagePrivate:
-			fallthrough
+			err = handlerSend(&message, MessagePrivate)
 		default:
 			log.Warnf("skip message_type")
 			this.JSON(http.StatusBadRequest, &Response{
@@ -67,148 +49,167 @@ func Handler(this *gin.Context) {
 			})
 			return
 		}
+	case TypeRequest:
+		switch message.RequestType {
+		case RequestTypeFriend:
+			err = gout.POST(ApproveFriendAdd).SetJSON(gout.H{
+				"flag":    message.Request.Flag,
+				"approve": true,
+			}).Do()
+		case RequestTypeGroup:
+			switch message.SubType {
+			case "add":
+				err = gout.POST(ApproveGroupAdd).SetJSON(gout.H{
+					"flag":     message.Request.Flag,
+					"approve":  true,
+					"sub_type": "add",
+					"type":     "add",
+				}).Do()
+			case "invite":
+				err = gout.POST(ApproveGroupAdd).SetJSON(gout.H{
+					"flag":     message.Request.Flag,
+					"approve":  true,
+					"sub_type": "invite",
+					"type":     "invite",
+				}).Do()
+			default:
+				log.Warnf("skip request_sub_type")
+				this.JSON(http.StatusBadRequest, &Response{
+					Code: http.StatusBadRequest,
+					Data: "skip request_sub_type",
+				})
+				return
+			}
+		}
+		if err != nil {
+			log.Errorf("err: %v", err)
+			this.JSON(http.StatusBadRequest, &Response{
+				Code:    http.StatusBadRequest,
+				Message: "同意请求失败",
+				Data:    err,
+			})
+			return
+		}
 	default:
 		log.Warnf("skip post_type")
 	}
+
+	if err != nil {
+		this.JSON(http.StatusInternalServerError, &Response{
+			Code: http.StatusInternalServerError,
+			Data: err,
+		})
+		return
+	}
 }
 
-func handlerGroup(message *Message) error {
+func handlerSend(message *PostMessage, sendType string) error {
+	var coinType string
 	if strings.Contains(message.RawMessage, "#助手") || strings.Contains(message.RawMessage, "#帮助") {
 		message.RawMessage = "请按照如下格式在群内发言即可获得关注币种的最新消息:\n" + strings.Join(supportCoinList, "\n")
-		err := send2Group(message, mq.MessageTypeNil)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeNil
 	}
 
 	if strings.Contains(message.RawMessage, "#比特") || strings.Contains(strings.ToLower(message.RawMessage), "#btc") {
-		err := send2Group(message, mq.MessageTypeBTC)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeBTC
 	}
 
 	if strings.Contains(message.RawMessage, "#以太") || strings.Contains(strings.ToLower(message.RawMessage), "#eth") {
-		err := send2Group(message, mq.MessageTypeETH)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeETH
 	}
 
 	if strings.Contains(message.RawMessage, "#莱特") || strings.Contains(strings.ToLower(message.RawMessage), "#ltc") {
-		err := send2Group(message, mq.MessageTypeLTC)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeLTC
 	}
 
 	if strings.Contains(message.RawMessage, "#柚子") || strings.Contains(strings.ToLower(message.RawMessage), "#eos") {
-		err := send2Group(message, mq.MessageTypeEOS)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeEOS
 	}
 
 	if strings.Contains(message.RawMessage, "#比特现金") || strings.Contains(strings.ToLower(message.RawMessage), "#bch") {
-		err := send2Group(message, mq.MessageTypeBCH)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeBCH
 	}
 
 	if strings.Contains(message.RawMessage, "#瑞波") || strings.Contains(strings.ToLower(message.RawMessage), "#xrp") {
-		err := send2Group(message, mq.MessageTypeXRP)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeXRP
 	}
 
 	if strings.Contains(message.RawMessage, "#波卡") || strings.Contains(strings.ToLower(message.RawMessage), "#dot") {
-		err := send2Group(message, mq.MessageTypeDOT)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeDOT
 	}
 
 	if strings.Contains(strings.ToLower(message.RawMessage), "#link") {
-		err := send2Group(message, mq.MessageTypeLINK)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeLINK
 	}
 
 	if strings.Contains(message.RawMessage, "#SV") || strings.Contains(strings.ToLower(message.RawMessage), "#bsv") {
-		err := send2Group(message, mq.MessageTypeBSV)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeBSV
 	}
 
 	if strings.Contains(message.RawMessage, "#门罗") || strings.Contains(strings.ToLower(message.RawMessage), "#xmr") {
-		err := send2Group(message, mq.MessageTypeXMR)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeXMR
 	}
 
 	if strings.Contains(message.RawMessage, "#UNI") || strings.Contains(strings.ToLower(message.RawMessage), "#uni") {
-		err := send2Group(message, mq.MessageTypeUNI)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeUNI
 	}
 
 	if strings.Contains(message.RawMessage, "#TRX") || strings.Contains(strings.ToLower(message.RawMessage), "#trx") {
-		err := send2Group(message, mq.MessageTypeTRX)
-		if err != nil {
-			log.Errorf("err: %v", err)
-			return err
-		}
-		return nil
+		coinType = mq.MessageTypeTRX
 	}
 
 	if strings.Contains(message.RawMessage, "#THETA") || strings.Contains(strings.ToLower(message.RawMessage), "#theta") {
-		err := send2Group(message, mq.MessageTypeTHETA)
+		coinType = mq.MessageTypeTHETA
+	}
+
+	switch sendType {
+	case MessageGroup:
+		err := send2Group(message, coinType)
 		if err != nil {
 			log.Errorf("err: %v", err)
 			return err
 		}
-		return nil
+	case MessagePrivate:
+		err := send2Single(message, coinType)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
 	}
 
 	return nil
 }
 
-func send2Group(message *Message, typ string) error {
+func send2Group(message *PostMessage, typ string) error {
 	data := mq.SenderMqMsg{
 		Type: mq.ChannelNameGroup,
 		Data: &mq.SendMessage{
-			SendURL:     "http://127.0.0.1:5799/send_group_msg",
+			SendURL:     SendGroupMsg,
 			SendTo:      message.GroupId,
+			MessageType: typ,
+			Message:     message.RawMessage,
+		},
+	}
+	msg, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	// 推送mq
+	err = pusher.Publish(mq.TopicName, msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func send2Single(message *PostMessage, typ string) error {
+	data := mq.SenderMqMsg{
+		Type: mq.ChannelNameSingle,
+		Data: &mq.SendMessage{
+			SendURL:     SendSingleMsg,
+			SendTo:      message.UserId,
 			MessageType: typ,
 			Message:     message.RawMessage,
 		},
