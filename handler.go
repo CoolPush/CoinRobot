@@ -116,60 +116,37 @@ func handlerSend(message *PostMessage, sendType string) error {
 	}
 
 	if strings.Contains(msg, "#助手") || strings.Contains(msg, "#帮助") {
-		message.RawMessage = "请按照如下格式在群内发言即可获得关注币种的最新消息:\n" + strings.Join(supportCoinList, "\n")
+		message.RawMessage = "请按照如下格式发言即可获得关注币种的最新消息:\n" + strings.Join(supportCoinList, "\n")
 		coinType = mq.MessageTypeNil
-	}
-
-	if strings.Contains(msg, "#比特") || strings.Contains(strings.ToLower(msg), "#btc") {
+	} else if strings.Contains(msg, "#比特") || strings.Contains(strings.ToLower(msg), "#btc") {
 		coinType = mq.MessageTypeBTC
-	}
-
-	if strings.Contains(msg, "#以太") || strings.Contains(strings.ToLower(msg), "#eth") {
+	} else if strings.Contains(msg, "#以太") || strings.Contains(strings.ToLower(msg), "#eth") {
 		coinType = mq.MessageTypeETH
-	}
-
-	if strings.Contains(msg, "#莱特") || strings.Contains(strings.ToLower(msg), "#ltc") {
+	} else if strings.Contains(msg, "#莱特") || strings.Contains(strings.ToLower(msg), "#ltc") {
 		coinType = mq.MessageTypeLTC
-	}
-
-	if strings.Contains(msg, "#柚子") || strings.Contains(strings.ToLower(msg), "#eos") {
+	} else if strings.Contains(msg, "#柚子") || strings.Contains(strings.ToLower(msg), "#eos") {
 		coinType = mq.MessageTypeEOS
-	}
-
-	if strings.Contains(msg, "#比特现金") || strings.Contains(strings.ToLower(msg), "#bch") {
+	} else if strings.Contains(msg, "#比特现金") || strings.Contains(strings.ToLower(msg), "#bch") {
 		coinType = mq.MessageTypeBCH
-	}
-
-	if strings.Contains(msg, "#瑞波") || strings.Contains(strings.ToLower(msg), "#xrp") {
+	} else if strings.Contains(msg, "#瑞波") || strings.Contains(strings.ToLower(msg), "#xrp") {
 		coinType = mq.MessageTypeXRP
-	}
-
-	if strings.Contains(msg, "#波卡") || strings.Contains(strings.ToLower(msg), "#dot") {
+	} else if strings.Contains(msg, "#波卡") || strings.Contains(strings.ToLower(msg), "#dot") {
 		coinType = mq.MessageTypeDOT
-	}
-
-	if strings.Contains(strings.ToLower(msg), "#link") {
+	} else if strings.Contains(strings.ToLower(msg), "#link") {
 		coinType = mq.MessageTypeLINK
-	}
-
-	if strings.Contains(msg, "#SV") || strings.Contains(strings.ToLower(msg), "#bsv") {
+	} else if strings.Contains(msg, "#SV") || strings.Contains(strings.ToLower(msg), "#bsv") {
 		coinType = mq.MessageTypeBSV
-	}
-
-	if strings.Contains(msg, "#门罗") || strings.Contains(strings.ToLower(msg), "#xmr") {
+	} else if strings.Contains(msg, "#门罗") || strings.Contains(strings.ToLower(msg), "#xmr") {
 		coinType = mq.MessageTypeXMR
-	}
-
-	if strings.Contains(msg, "#UNI") || strings.Contains(strings.ToLower(msg), "#uni") {
+	} else if strings.Contains(msg, "#UNI") || strings.Contains(strings.ToLower(msg), "#uni") {
 		coinType = mq.MessageTypeUNI
-	}
-
-	if strings.Contains(msg, "#TRX") || strings.Contains(strings.ToLower(msg), "#trx") {
+	} else if strings.Contains(msg, "#TRX") || strings.Contains(strings.ToLower(msg), "#trx") {
 		coinType = mq.MessageTypeTRX
-	}
-
-	if strings.Contains(msg, "#THETA") || strings.Contains(strings.ToLower(msg), "#theta") {
+	} else if strings.Contains(msg, "#THETA") || strings.Contains(strings.ToLower(msg), "#theta") {
 		coinType = mq.MessageTypeTHETA
+	} else {
+		message.RawMessage = "Command not found!\n使用 #帮助 可以查看目前已支持的指令"
+		coinType = mq.MessageTypeNil
 	}
 
 	switch sendType {
