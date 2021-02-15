@@ -140,9 +140,9 @@ func handlerSend(message *PostMessage, sendType string) error {
 		coinType = mq.MessageTypeXMR
 	} else if strings.Contains(msg, "#UNI") || strings.Contains(strings.ToLower(msg), "#uni") {
 		coinType = mq.MessageTypeUNI
-	} else if strings.Contains(msg, "#TRX") || strings.Contains(strings.ToLower(msg), "#trx") {
+	} else if strings.Contains(msg, "#波场") || strings.Contains(strings.ToLower(msg), "#trx") {
 		coinType = mq.MessageTypeTRX
-	} else if strings.Contains(msg, "#THETA") || strings.Contains(strings.ToLower(msg), "#theta") {
+	} else if strings.Contains(strings.ToLower(msg), "#theta") {
 		coinType = mq.MessageTypeTHETA
 	} else {
 		message.RawMessage = "Command not found!\n使用 #帮助 可以查看目前已支持的指令"
