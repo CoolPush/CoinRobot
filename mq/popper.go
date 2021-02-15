@@ -104,23 +104,27 @@ func (pop *Popper) HandleMessage(msg *nsq.Message) error {
 }
 
 func (pop *Popper) sendSingleMessage(data *SendMessage) error {
+	if data.Message == "" {
+		log.Errorf("get message empty")
+		return errors.New("get message empty")
+	}
+
 	//发起推送
-	var pushRet = &struct {
-		RetCode int64  `json:"retcode"`
-		Status  string `json:"status"`
-	}{}
+
+	var pushRet QQMessageSendResult
 
 	err := gout.POST(data.SendURL).SetJSON(gout.H{
-		"user_id": strconv.FormatInt(data.SendTo, 10),
+		"user_id": data.SendTo,
 		"message": data.Message,
-	}).Do()
+	}).BindJSON(&pushRet).Do()
 
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return err
 	}
 
-	if pushRet.RetCode != 0 {
+	if pushRet.Retcode != 0 {
+		log.Errorf("err: %+v", pushRet)
 		return errors.New("推送异常")
 	}
 
@@ -134,23 +138,19 @@ func (pop *Popper) sendGroupMessage(data *SendMessage) error {
 	}
 
 	//发起推送
-	var pushRet = &struct {
-		RetCode int64  `json:"retcode"`
-		Status  string `json:"status"`
-	}{}
+	var pushRet QQMessageSendResult
 
-	var payload = SendGroupMessage{
-		GroupId: data.SendTo,
-		Message: data.Message,
-	}
-	err := gout.POST(data.SendURL).SetJSON(&payload).BindJSON(&pushRet).Do()
+	err := gout.POST(data.SendURL).SetJSON(gout.H{
+		"group_id": data.SendTo,
+		"message":  data.Message,
+	}).BindJSON(&pushRet).Do()
 
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return err
 	}
 
-	if pushRet.RetCode != 0 {
+	if pushRet.Retcode != 0 {
 		log.Errorf("push rsp: %+v", pushRet)
 		return errors.New("推送异常")
 	}

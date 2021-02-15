@@ -154,3 +154,13 @@ type CoinBase struct {
 	Ok   bool      `json:"ok"`
 	Info *CoinInfo `json:"global"`
 }
+
+type QQMessageSendResult struct {
+	Data struct {
+		MessageID int `json:"message_id"`
+	} `json:"data"`
+	Msg     string `json:"msg"`
+	Retcode int    `json:"retcode"`
+	Status  string `json:"status"`
+	Wording string `json:"wording"`
+}
