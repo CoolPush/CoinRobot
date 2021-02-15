@@ -125,6 +125,7 @@ func (pop *Popper) sendSingleMessage(data *SendMessage) error {
 
 	if pushRet.Retcode != 0 {
 		log.Errorf("err: %+v", pushRet)
+		log.Warnf("push msg: %s", data.Message)
 		return errors.New("推送异常")
 	}
 
@@ -152,6 +153,7 @@ func (pop *Popper) sendGroupMessage(data *SendMessage) error {
 
 	if pushRet.Retcode != 0 {
 		log.Errorf("push rsp: %+v", pushRet)
+		log.Warnf("push msg: %s", data.Message)
 		return errors.New("推送异常")
 	}
 
