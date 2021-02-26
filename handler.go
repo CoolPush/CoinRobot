@@ -285,13 +285,13 @@ func handlerSendLSP(message *PostMessage, sendType string) error {
 
 	switch sendType {
 	case MessageGroup:
-		err := send2Group(message, "")
+		err := send2Group(message, mq.MessageTypeNil)
 		if err != nil {
 			log.Errorf("err: %v", err)
 			return err
 		}
 	case MessagePrivate:
-		err := send2Single(message, "")
+		err := send2Single(message, mq.MessageTypeNil)
 		if err != nil {
 			log.Errorf("err: %v", err)
 			return err
