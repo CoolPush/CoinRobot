@@ -4,6 +4,7 @@ import (
 	"CoinRobot/logger"
 	"CoinRobot/mq"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/guonaihong/gout"
 	"net/http"
@@ -14,7 +15,7 @@ var log = logger.NewLog()
 
 var supportCoinList = []string{"#比特币/#BTC", "#以太坊/#ETH", "#莱特币/#LTC", "#柚子币/#EOS", "#比特现金/#BCH", "#瑞波币/#XRP", "#波卡币#/#DOT", "#LINK", "#比特币SV/#BSV", "#门罗币/#XMR", "#UNI", "#波场/#TRX", "#THETA"}
 
-func Handler(this *gin.Context) {
+func HandlerCoin(this *gin.Context) {
 	var message PostMessage
 	err := this.ShouldBind(&message)
 	if err != nil {
@@ -213,4 +214,101 @@ func send2Single(message *PostMessage, typ string) error {
 	}
 
 	return nil
+}
+
+// -= HandlerLSP
+
+func HandlerLSP(this *gin.Context) {
+	var message PostMessage
+	err := this.ShouldBind(&message)
+	if err != nil {
+		log.Errorf("err: %v", err)
+		this.JSON(http.StatusBadRequest, &Response{
+			Code: http.StatusBadRequest,
+			Data: err,
+		})
+		return
+	}
+
+	switch message.PostType {
+	case TypeMessage:
+		switch message.MessageType {
+		case MessageGroup:
+			if message.SubType != MessageSubTypeNormal {
+				log.Warnf("skip message_sub_type")
+				this.JSON(http.StatusBadRequest, &Response{
+					Code: http.StatusBadRequest,
+					Data: "skip message_sub_type",
+				})
+				return
+			}
+			err = handlerSendLSP(&message, MessageGroup)
+		case MessagePrivate:
+			err = handlerSendLSP(&message, MessagePrivate)
+		default:
+			log.Warnf("skip message_type")
+			this.JSON(http.StatusBadRequest, &Response{
+				Code: http.StatusBadRequest,
+				Data: "skip message_type",
+			})
+			return
+		}
+	default:
+		break
+	}
+
+	if err != nil {
+		this.JSON(http.StatusInternalServerError, &Response{
+			Code: http.StatusInternalServerError,
+			Data: err,
+		})
+		return
+	}
+}
+
+func handlerSendLSP(message *PostMessage, sendType string) error {
+	msg, ok := message.Message.Message.(string)
+	if !ok {
+		return nil
+	}
+
+	if strings.Contains(msg, "开车") {
+		message.RawMessage = "### 开车 ###\n输入 车来 即可完成开车\n资源来自妹子图，不保证质量"
+	}
+
+	if strings.Contains(msg, "车来") {
+		img, err := getPIC()
+		if err != nil {
+			return err
+		}
+		message.RawMessage = fmt.Sprintf("[CQ:image,file=%s]", img)
+	}
+
+	switch sendType {
+	case MessageGroup:
+		err := send2Group(message, "")
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+	case MessagePrivate:
+		err := send2Single(message, "")
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func getPIC() (string, error) {
+	var resp GetMzPicResponse
+	err := gout.GET("https://api.func.ws/api/img/mz?format=json").
+		BindJSON(&resp).Do()
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return "", err
+	}
+	return resp.Data.Img, nil
 }

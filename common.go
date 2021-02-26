@@ -82,3 +82,15 @@ type Response struct {
 	Message interface{} `json:"message"` //请求结果提示
 	Data    interface{} `json:"data"`    //请求结果与错误原因
 }
+
+// GetMzPicResponse 是交付层的基本回应
+type GetMzPicResponse struct {
+	Code    int         `json:"code"`    //请求状态代码
+	Message interface{} `json:"message"` //请求结果提示
+	Data    struct {
+		Cat    string `json:"cat"`
+		Album  int64  `json:"album"`
+		RawImg string `json:"raw_img"`
+		Img    string `json:"img"`
+	} `json:"data"` //请求结果与错误原因
+}
