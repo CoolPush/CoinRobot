@@ -146,8 +146,7 @@ func handlerSend(message *PostMessage, sendType string) error {
 	} else if strings.Contains(strings.ToLower(msg), "#theta") {
 		coinType = mq.MessageTypeTHETA
 	} else {
-		message.RawMessage = "Command not found!\n使用 #帮助 可以查看目前已支持的指令"
-		coinType = mq.MessageTypeNil
+		return nil
 	}
 
 	switch sendType {
@@ -274,14 +273,14 @@ func handlerSendLSP(message *PostMessage, sendType string) error {
 
 	if strings.Contains(msg, "开车") {
 		message.RawMessage = "### 开车 ###\n输入 车来 即可完成开车\n资源来自妹子图，不保证质量"
-	}
-
-	if strings.Contains(msg, "车来") {
+	} else if strings.Contains(msg, "车来") {
 		img, err := getPIC()
 		if err != nil {
 			return err
 		}
 		message.RawMessage = fmt.Sprintf("[CQ:image,file=%s]", img)
+	} else {
+		return nil
 	}
 
 	switch sendType {
