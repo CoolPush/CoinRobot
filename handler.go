@@ -276,14 +276,15 @@ func handlerSendLSP(message *PostMessage, sendType string) error {
 		message.RawMessage = "输入 车来 即可完成开车\n资源来自妹子图(mzitu.com)，不保证质量"
 	} else if strings.Contains(msg, "车来") {
 		var freqer = freq.NewFreq()
-		if !freqer.Check("coin_robot_lsp", 600, 10) {
+		if !freqer.Check("coin_robot_lock", 600, 10) {
 			message.RawMessage = "车速太快了, 先缓缓[CQ:face,id=178]"
+		} else {
+			img, err := getPIC()
+			if err != nil {
+				return err
+			}
+			message.RawMessage = fmt.Sprintf("[CQ:image,file=%s]", img)
 		}
-		img, err := getPIC()
-		if err != nil {
-			return err
-		}
-		message.RawMessage = fmt.Sprintf("[CQ:image,file=%s]", img)
 	} else {
 		return nil
 	}
